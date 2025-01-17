@@ -82,3 +82,18 @@ class Fuel:
         screen.blit(self.sign, (300, 710))
         for i in range(6):
             screen.blit(self.lines[i // 2], (220, 765 - i * 15))
+
+
+class Place:
+    def __init__(self):
+        alpha = load_image('counter_background.png', UI_DIR).convert_alpha()
+        self.background = pygame.transform.smoothscale(alpha, (400, 60))
+        self.background.set_alpha(220)
+        self.place, self.y = "q", -60
+
+    def draw(self, screen):
+        if self.place and self.y < 10:
+            self.y += 2
+        elif not self.place and self.y > -60:
+            self.y -= 2
+        screen.blit(self.background, (WIDTH // 2 - 200, self.y))

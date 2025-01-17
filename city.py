@@ -4,6 +4,35 @@ from objects import *
 from ui import *
 
 
+class StartScreen:
+    def __init__(self, screen):
+        self.screen = screen
+        self.sky = load_image("sky.jpg")
+        self.black = pygame.Surface((WIDTH, HEIGHT))
+        self.black.fill("black"), self.black.set_alpha(90)
+        self.taxi = pygame.sprite.Group()
+        GameObject("taxi.png", 300, (0, 105), self.taxi)
+        self.road, self.position = Road(), 0
+        self.intro = pygame.font.Font(font_intro, 200)
+        self.small = pygame.font.Font(font_intro, 70)
+        self.team = pygame.font.Font(font_intro, 30)
+
+    def render(self):
+        self.position -= 1
+        self.road.update(self.position)
+        self.screen.blit(self.sky, (0, 0))
+        self.screen.blit(self.black, (0, 0))
+        self.road.draw(self.screen)
+        self.taxi.draw(self.screen)
+        self.screen.blit(self.black, (0, 0))
+        text_render(self.screen, "TAXI", self.intro, "orange", (220, -100))
+        text_render(self.screen, "HELL", self.intro, "red", (720, -100))
+        text = "(Press any key to start)"
+        text_render(self.screen, text, self.small, "white", (320, 220))
+        team = "©ALYEXRESS™"
+        text_render(self.screen, team, self.team, "gray", (10, 730))
+
+
 class City:
     def __init__(self, screen, taxi: Taxi):
         self.screen = screen
@@ -27,6 +56,7 @@ class City:
         self.counter = Counter()
         self.speedometer = Speedometer()
         self.fuel = Fuel()
+        self.place = Place()
 
         #DEL
         self.info = None
@@ -133,6 +163,7 @@ class City:
         self.counter.draw(self.screen)
         self.speedometer.draw(self.screen)
         self.fuel.draw(self.screen)
+        self.place.draw(self.screen)
         # Ending render
         self.ending.render(self.screen)
 

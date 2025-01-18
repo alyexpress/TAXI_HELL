@@ -86,14 +86,24 @@ class Fuel:
 
 class Place:
     def __init__(self):
-        alpha = load_image('counter_background.png', UI_DIR).convert_alpha()
-        self.background = pygame.transform.smoothscale(alpha, (400, 60))
-        self.background.set_alpha(220)
-        self.place, self.y = "q", -60
+        self.intro = pygame.font.Font(font_intro, 50)
+        self.text = self.intro.render("", True, "white")
+        self.place, self.y = "", -50
+
+    def update(self, position, place):
+        for i, j in place.keys():
+            if i < position < j:
+                self.place = place[i, j]
+                args = f" {self.place} ", True, "black", "white"
+                self.text = self.intro.render(*args)
+                return
+        self.place = ""
 
     def draw(self, screen):
-        if self.place and self.y < 10:
+        if self.place and self.y < 20:
             self.y += 2
         elif not self.place and self.y > -60:
             self.y -= 2
-        screen.blit(self.background, (WIDTH // 2 - 200, self.y))
+        cords = ((WIDTH - self.text.get_width()) // 2, self.y)
+        screen.blit(self.text, cords)
+

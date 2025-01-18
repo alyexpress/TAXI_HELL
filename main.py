@@ -20,7 +20,7 @@ if __name__ == '__main__':
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if type(city) == FirstCity:
-                    if city.ending.end:
+                    if city.ending.end and city.ending.alpha > 255:
                         if event.key in (pygame.K_SPACE, pygame.K_KP_ENTER):
                             city = StartScreen(screen)
                     else:
@@ -34,6 +34,8 @@ if __name__ == '__main__':
                             action = 1
                         if event.key == pygame.K_SPACE:
                             action = -2
+                        if event.key == pygame.K_q:
+                            print(city.position)
                 elif type(city) == StartScreen:
                     city = FirstCity(screen)
             if event.type == pygame.MOUSEBUTTONDOWN and event.button in (1, 3):

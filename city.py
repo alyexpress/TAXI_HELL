@@ -43,6 +43,7 @@ class City:
         self.position = 0
         self.parallax = 3
         self.paused = False
+        self.places = {}
         self.road, self.zebra = Road(), None
         self.on_road = pygame.sprite.Group()
         self.front = pygame.sprite.Group()
@@ -88,14 +89,14 @@ class City:
         self.taxi.update(self.position)
         # UI updating
         self.speedometer.update(self.taxi.speed)
+        self.place.update(self.position, self.places)
 
     def car_generation(self):
         count = len(self.left_cars) + len(self.right_cars)
         if abs(self.taxi.speed) > 1 and count < 2:
             line = 1 if len(self.left_cars) > len(self.right_cars) else 0
             position = WIDTH if self.taxi.speed < 0 else -WIDTH
-            self.car_control.generate(line, position - self.position)
-
+            # self.car_control.generate(line, position - self.position)
 
     def check_collisions(self):
         if type(self.zebra) is Zebra and self.zebra.active is not None:
@@ -173,7 +174,9 @@ class FirstCity(City):
         super().__init__(screen, Taxi("taxi.png", 300, (0, 105)))
         self.sky = load_image("sky.jpg")
         # Ambient setting
+        self.places[400, 1000] = "Бизнес центр"
         GameObject("business.png", 600, (-250, -100), self.background)
+        self.places[-1100, -400] = "Заправка"
         GameObject("gas.png", 500, (250, -15), self.background)
         GameObject("stop.png", 150, (-5550, 15), self.on_road)
         # Camera setting

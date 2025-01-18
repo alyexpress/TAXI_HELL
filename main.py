@@ -20,21 +20,27 @@ if __name__ == '__main__':
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if type(city) == FirstCity:
-                    if event.key == pygame.K_s:
-                        city.taxi.change_line(Taxi.FORWARD)
-                    if event.key == pygame.K_w:
-                        city.taxi.change_line(Taxi.BACKWARD)
-                    if event.key == pygame.K_a:
-                        action = -1
-                    if event.key == pygame.K_d:
-                        action = 1
-                    if event.key == pygame.K_SPACE:
-                        action = -2
+                    if city.ending.end:
+                        if event.key in (pygame.K_SPACE, pygame.K_KP_ENTER):
+                            city = StartScreen(screen)
+                    else:
+                        if event.key == pygame.K_s:
+                            city.taxi.change_line(Taxi.FORWARD)
+                        if event.key == pygame.K_w:
+                            city.taxi.change_line(Taxi.BACKWARD)
+                        if event.key == pygame.K_a:
+                            action = -1
+                        if event.key == pygame.K_d:
+                            action = 1
+                        if event.key == pygame.K_SPACE:
+                            action = -2
                 elif type(city) == StartScreen:
                     city = FirstCity(screen)
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if type(city) == StartScreen and event.button in (1, 3):
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button in (1, 3):
+                if type(city) == StartScreen:
                     city = FirstCity(screen)
+                elif type(city) == FirstCity and city.ending.end:
+                    city = StartScreen(screen)
             if type(city) == FirstCity and event.type == pygame.KEYUP:
                 if (event.key == pygame.K_a and action == -1 or
                         event.key == pygame.K_d and action == 1

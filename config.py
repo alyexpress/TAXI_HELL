@@ -1,4 +1,4 @@
-VERSION = 3.2
+VERSION = 3.3
 WINDOW_TITLE = f"TaxiHell – Yandex LMS (v{VERSION})"
 WIDTH, HEIGHT = 1400, 800
 

@@ -82,8 +82,8 @@ class CarController:
     def __init__(self, right_group, left_group):
         self.right_group = right_group
         self.left_group = left_group
-        self.right_models:[Car] = []
-        self.left_models:[Car] = []
+        self.right_models: [Car] = []
+        self.left_models: [Car] = []
         self.stopped, self.red = [], False
 
     def stop(self, cars, zebra):
@@ -100,7 +100,6 @@ class CarController:
             car.stop = False
         self.stopped = []
 
-
     def add(self, image, size=None, cords=(0, 0)):
         right = Car(image, size, cords, self.right_group, True)
         cords = (cords[0], cords[1] - 80)
@@ -116,6 +115,7 @@ class CarController:
 class Taxi(GameObject):
     FORWARD = 2
     BACKWARD = 1
+
     def __init__(self, image, size=None, cords=(0, 0),
                  group=None, right=True, **kwargs):
         super().__init__(image, size, cords, group)
@@ -272,8 +272,8 @@ class Zebra:
         self.cords[0] = self.x + x
         self.rect.x = self.cords[0] - 100
         if (self.active is None and self.persons
-                and (-350 <= self.cords[0] <= -150
-                or WIDTH <= self.cords[0] <= WIDTH + 200)):
+                and (-350 <= self.cords[0] <= -150 or
+                WIDTH <= self.cords[0] <= WIDTH + 200)):
             index = randint(0, len(self.persons) - 1)
             self.active = self.persons[index].generate()
 
@@ -414,19 +414,19 @@ class Ending:
 
     def render(self, screen):
         header, text, position = "", "", 650
-        if self.end != 0: # Black screen
-            self.alpha += 3 if self.alpha < 255 * 2 else 0
+        if self.end != 0:  # Black screen
+            self.alpha += 6 if self.alpha < 255 * 2 else 0
             surface = pygame.Surface((WIDTH, HEIGHT))
             surface.fill("black")
             surface.set_alpha(self.alpha if self.alpha < 255 else 255)
             screen.blit(surface, (0, 0))
             if self.alpha > 255:
-                if self.end == 1: # Person death
+                if self.end == 1:  # Person death
                     self.prisoner.image.set_alpha(self.alpha - 255)
                     self.prisoner.draw(screen)
                     self.grid.image.set_alpha(self.alpha - 255)
                     if self.grid.rect.y < 105:
-                        self.grid.rect.y += 5
+                        self.grid.rect.y += 15
                     self.grid.draw(screen)
                     header = "ВЫ СБИЛИ ЧЕЛОВЕКА!"
                     text = """Пешеход скончался на месте.
@@ -434,11 +434,11 @@ class Ending:
 и проехали на красный свет.\nРебёнка, которого вы сбили,
 ждали дома родные, а он так\nи не вернулся... Суд приговорил
 вас к 10 годам лишения свободы."""
-                elif self.end == 2: # Driver death
+                elif self.end == 2:  # Driver death
                     self.tombstone.image.set_alpha(self.alpha - 255)
                     self.tombstone.draw(screen)
                     if self.tombstone.rect.y < 105:
-                        self.tombstone.rect.y += 5
+                        self.tombstone.rect.y += 10
                     position -= 110
                     header = "ВЫ РАЗБИЛСЬ НАСМЕРТЬ!"
                 position1 = position + (255 * 2 - self.alpha) * 0.7

@@ -29,7 +29,7 @@ class StartScreen:
         text_render(self.screen, "HELL", self.intro, "red", (720, -100))
         text = "(Press any key to start)"
         text_render(self.screen, text, self.small, "white", (320, 220))
-        team = "©ALYEXRESS™"
+        team = "©ALYEXPRESS™"
         text_render(self.screen, team, self.team, "gray", (10, 730))
 
 
@@ -43,24 +43,20 @@ class City:
         self.position = 0
         self.parallax = 3
         self.paused = False
-        self.places = {}
         self.road, self.zebra = Road(), None
         self.on_road = pygame.sprite.Group()
         self.front = pygame.sprite.Group()
         self.background = pygame.sprite.Group()
-        right = self.right_cars = pygame.sprite.Group()
-        left = self.left_cars = pygame.sprite.Group()
+        self.right_cars = right = pygame.sprite.Group()
+        self.left_cars = left = pygame.sprite.Group()
         self.car_control = CarController(right, left)
         self.ending = Ending()
         # Init UI
-        self.rating = Rating()
-        self.counter = Counter()
-        self.speedometer = Speedometer()
-        self.fuel = Fuel()
-        self.place = Place()
+        self.place, self.places = Place(), {}
+        self.rating, self.counter = Rating(), Counter()
+        self.speedometer, self.fuel = Speedometer(), Fuel()
+        self.display, self.radio = Display(), Radio()
 
-        #DEL
-        self.info = None
 
     def set_position(self, speed):
         # road borders
@@ -90,6 +86,7 @@ class City:
         # UI updating
         self.speedometer.update(self.taxi.speed)
         self.place.update(self.position, self.places)
+        self.display.update(self.position)
 
     def car_generation(self):
         count = len(self.left_cars) + len(self.right_cars)
@@ -138,33 +135,36 @@ class City:
                         self.paused = True
 
     def render(self):
-        self.screen.blit(self.sky, (0, 0))
-        self.set_position(self.taxi.speed)
-        self.background.draw(self.screen)
-        self.road.draw(self.screen)
-        self.zebra.draw(self.screen)
-        self.on_road.draw(self.screen)
-        self.left_cars.draw(self.screen)
-        if self.taxi.go_forward == 4:
-            self.right_cars.draw(self.screen)
-            self.taxi.draw(self.screen)
-        elif self.taxi.go_backward == 4:
-            self.taxi.draw(self.screen)
-            self.right_cars.draw(self.screen)
-        self.front.draw(self.screen)
-        #DEL
-        # s = pygame.Surface((self.taxi.collider.width,
-        #                     self.taxi.collider.height))
-        # s.fill("green")
-        # s.set_alpha(100)
-        # self.screen.blit(s, (self.taxi.collider.rect.x,
-        #                      self.taxi.collider.rect.y))
-        # Render UI
-        self.rating.draw(self.screen)
-        self.counter.draw(self.screen)
-        self.speedometer.draw(self.screen)
-        self.fuel.draw(self.screen)
-        self.place.draw(self.screen)
+        if self.ending.alpha < 255:
+            self.screen.blit(self.sky, (0, 0))
+            self.set_position(self.taxi.speed)
+            self.place.draw(self.screen)
+            self.background.draw(self.screen)
+            self.road.draw(self.screen)
+            self.zebra.draw(self.screen)
+            self.on_road.draw(self.screen)
+            self.left_cars.draw(self.screen)
+            if self.taxi.go_forward == 4:
+                self.right_cars.draw(self.screen)
+                self.taxi.draw(self.screen)
+            elif self.taxi.go_backward == 4:
+                self.taxi.draw(self.screen)
+                self.right_cars.draw(self.screen)
+            self.front.draw(self.screen)
+            #DEL
+            # s = pygame.Surface((self.taxi.collider.width,
+            #                     self.taxi.collider.height))
+            # s.fill("green")
+            # s.set_alpha(100)
+            # self.screen.blit(s, (self.taxi.collider.rect.x,
+            #                      self.taxi.collider.rect.y))
+            # Render UI
+            self.rating.draw(self.screen)
+            self.counter.draw(self.screen)
+            self.speedometer.draw(self.screen)
+            self.fuel.draw(self.screen)
+            self.display.draw(self.screen)
+            self.radio.draw(self.screen)
         # Ending render
         self.ending.render(self.screen)
 
@@ -173,40 +173,32 @@ class FirstCity(City):
     def __init__(self, screen: pygame.surface.Surface):
         super().__init__(screen, Taxi("taxi.png", 300, (0, 105)))
         self.sky = load_image("sky.jpg")
+        # Places setting
+        self.places = {(400, 1000): "Бизнес центр",
+                       (-1050, -450): "Заправка"}
         # Ambient setting
-        self.places[400, 1000] = "Бизнес центр"
-        GameObject("business.png", 600, (-250, -100), self.background)
-        self.places[-1100, -400] = "Заправка"
-        GameObject("gas.png", 500, (250, -15), self.background)
-        GameObject("stop.png", 150, (-5550, 15), self.on_road)
+        GameObject("build/business.png", 600, (-250, -100), self.background)
+        GameObject("build/gas.png", 500, (250, -15), self.background)
+        GameObject("signs/stop.png", 150, (-5550, 15), self.on_road)
         # Camera setting
-        GameObject("camera.png", 200, (2800, -10), self.on_road)
-        GameObject("sixty.png", 150, (2000, 15), self.on_road)
-        GameObject("sixty.png", 150, (4000, 15), self.on_road)
+        GameObject("signs/camera.png", 200, (2800, -10), self.on_road)
+        GameObject("signs/sixty.png", 150, (2000, 15), self.on_road)
+        GameObject("signs/sixty.png", 150, (4000, 15), self.on_road)
         # Zebra setting
         zebra = self.zebra = Zebra(-1000, self.on_road)
-        Person("cartman.png", 80, (35, 56), self.front, zebra)
-        Person("kyle.png", 75, (50, 56), self.front, zebra, speed=0.6)
-        Person("stan.png", 80, (50, 55), self.front, zebra, speed=0.6)
-        Person("kenny2.png", 75, (50, 56), self.front, zebra, speed=0.7)
-        GameObject("person_sign.png", 150, (-350, 17), self.on_road)
-        GameObject("person_sign.png", 150, (-1500, 17), self.on_road)
+        Person("pers/cartman.png", 80, (35, 56), self.front, zebra)
+        Person("pers/kyle.png", 75, (50, 56), self.front, zebra, speed=0.6)
+        Person("pers/stan.png", 80, (50, 55), self.front, zebra, speed=0.6)
+        Person("pers/kenny.png", 75, (50, 56), self.front, zebra, speed=0.7)
+        GameObject("signs/person.png", 150, (-350, 17), self.on_road)
+        GameObject("signs/person.png", 150, (-1500, 17), self.on_road)
         # Cars setting
-        self.car_control.add("red_car.png", 290, (-300, 180))
-        self.car_control.add("white_car.png", 280, (-300, 185))
-        self.car_control.add("blue_car.png", 290, (-300, 180))
-        self.car_control.add("black_car.png", 290, (-300, 180))
-        self.car_control.add("gray_car.png", 300, (-300, 180))
+        self.car_control.add("cars/red_car.png", 290, (-300, 180))
+        self.car_control.add("cars/white_car.png", 280, (-300, 185))
+        self.car_control.add("cars/blue_car.png", 290, (-300, 180))
+        self.car_control.add("cars/black_car.png", 290, (-300, 180))
+        self.car_control.add("cars/gray_car.png", 300, (-300, 180))
         # Car setting (for testing)
-        # car = Car("red_car.png", 290, (-300, 180),
+        # car = Car("cars/red_car.png", 290, (-300, 180),
         #           self.right_cars, clone=True)
         # car.rect.x, car.speed = WIDTH / 2, 0
-
-    def render(self):
-        super().render()
-        info = self.info
-        # info = self.info
-        if info is not None:
-            font = pygame.font.Font(None, 50)
-            text = font.render(str(info), True, (255, 255, 255))
-            self.screen.blit(text, (1200, 700))

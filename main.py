@@ -12,8 +12,8 @@ if __name__ == '__main__':
 
     pygame.display.set_caption(WINDOW_TITLE)
     clock = pygame.time.Clock()
-    # city = FirstCity(screen)
-    city = StartScreen(screen)
+    city = FirstCity(screen)
+    # city = StartScreen(screen)
     action = 0
     running = True
     while running:

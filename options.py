@@ -5,6 +5,7 @@ import os
 
 
 font_intro = os.path.join(SYSTEM_DIR, "Intro.ttf")
+font_lcd = os.path.join(SYSTEM_DIR, "Moscow24.otf")
 
 
 def load_image(filename, path=SPRITES_DIR):

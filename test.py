@@ -40,7 +40,7 @@ arrow = pygame.transform.scale(arrow, (250, 250))
 
 # радио
 
-radio_screen = pygame.image.load('data/radio.png')
+radio_screen = pygame.image.load('data/background.png')
 radio_screen = pygame.transform.scale(radio_screen, (600, 200))
 
 

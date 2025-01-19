@@ -257,7 +257,7 @@ class Road:
             pygame.draw.line(screen, "#111111", (i, 640), (i - 5, 655), 2)
             pygame.draw.rect(screen, "#aa5500", ((i - 2, 560), (53, 10)))
             pygame.draw.rect(screen, "orange", ((i, 560), (50, 8)))
-        pygame.draw.rect(screen, "#555555", ((0, 660), (WIDTH, 200)))
+        pygame.draw.rect(screen, "#444444", ((0, 660), (WIDTH, 200)))
 
 
 class Zebra:
@@ -288,7 +288,7 @@ class Zebra:
 
 class TrafficLight(GameObject):
     def __init__(self, size=None, cords=(0, 0), group=None):
-        super().__init__("traffic_lights.png", 905, cords, group)
+        super().__init__("signs/traffic_lights.png", 905, cords, group)
         self.during, self.queue = [4, 1, 5], [0, 1, 2, 1]
         size, self.time, self.color = (size, size / 285 * 900), 1, 0
         green = self.image.subsurface(((0, 0), (285, 900)))
@@ -403,14 +403,12 @@ class Ending:
         self.end, self.alpha = 0, 0
         self.intro = pygame.font.Font(font_intro, 60)
         self.small_intro = pygame.font.Font(font_intro, 42)
-        self.prisoner = GameObject('prisoner.png')
+        self.prisoner = GameObject('end/prisoner.png')
+        self.grid = GameObject('end/grid.png')
+        self.tombstone = GameObject('end/tombstone.png')
         self.prisoner.rect.x = 100
-        self.grid = GameObject('grid.png')
-        self.grid.rect.y = -500
-        self.grid.rect.x = 110
-        self.tombstone = GameObject('tombstone2.png')
-        self.tombstone.rect.x = 50
-        self.tombstone.rect.y = -300
+        self.grid.rect.y, self.grid.rect.x = -500, 110
+        self.tombstone.rect.x, self.tombstone.rect.y = 50, -300
 
     def render(self, screen):
         header, text, position = "", "", 650

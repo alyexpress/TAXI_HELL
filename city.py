@@ -56,7 +56,8 @@ class City:
         self.rating, self.counter = Rating(), Counter()
         self.speedometer, self.fuel = Speedometer(), Fuel()
         self.display, self.radio = Display(), Radio()
-
+        # Game control
+        self.game_control = GameControl(self)
 
     def set_position(self, speed):
         # road borders
@@ -71,6 +72,7 @@ class City:
         else:
             self.taxi.rect.x -= speed
         if not self.paused:
+            self.game_control.update()
             self.set_ambient_position()
             self.car_generation()
             self.check_collisions()
@@ -93,7 +95,7 @@ class City:
         if abs(self.taxi.speed) > 1 and count < 2:
             line = 1 if len(self.left_cars) > len(self.right_cars) else 0
             position = WIDTH if self.taxi.speed < 0 else -WIDTH
-            # self.car_control.generate(line, position - self.position)
+            self.car_control.generate(line, position - self.position)
 
     def check_collisions(self):
         if type(self.zebra) is Zebra and self.zebra.active is not None:
@@ -176,6 +178,8 @@ class FirstCity(City):
         # Places setting
         self.places = {(400, 1000): "Бизнес центр",
                        (-1050, -450): "Заправка"}
+        self.route = {"Бизнес центр": 700,
+                      "Заправка": -750}
         # Ambient setting
         GameObject("build/business.png", 600, (-250, -100), self.background)
         GameObject("build/gas.png", 500, (250, -15), self.background)

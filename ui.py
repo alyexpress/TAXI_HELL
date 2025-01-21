@@ -9,7 +9,6 @@ def load_scaled_image(filename, size, path=UI_DIR):
     return pygame.transform.smoothscale(alpha, size)
 
 
-
 class Rating:
     def __init__(self):
         self.intro = pygame.font.Font(font_intro, 50)
@@ -122,12 +121,11 @@ class Display:
         self.display.fill("#111120")
         self.intro = pygame.font.Font(font_intro, 30)
         self.place = pygame.surface.Surface((0, 0))
-        self.set_place("Бизнес центр")
-        self.meters = self.intro.render("0 м", True, "white")
-        self.x, self.right = 600, False
+        self.meters = pygame.surface.Surface((0, 0))
+        self.x, self.right = 0, False
 
     def set_place(self, place):
-        size = 30
+        (place, self.x), size = place, 30
         while True:
             font = pygame.font.Font(font_intro, size)
             text = font.render(place, True, "white")
@@ -137,6 +135,8 @@ class Display:
             size -= 1
 
     def update(self, position):
+        if self.place.get_width() == 0:
+            return
         meters = round(round((self.x - position) * 0.05, -1))
         if meters > 0 and self.right or meters < 0 and not self.right:
             self.arrow = pygame.transform.flip(self.arrow, True, False)
@@ -149,7 +149,8 @@ class Display:
         screen.blit(self.background, (430, 665))
         screen.blit(self.place, (470, 695))
         y = 700 + self.place.get_height()
-        screen.blit(self.arrow, (470, y - 2))
+        if self.place.get_width() > 0:
+            screen.blit(self.arrow, (470, y - 2))
         screen.blit(self.meters, (510, y))
 
 

@@ -1,6 +1,45 @@
-from random import randint, choice
+from random import randint, choice, sample
 from config import WIDTH, HEIGHT, FPS
 from options import *
+
+
+class GameControl:
+    def __init__(self, city):
+        self.city, self.step = city, 0
+        self.duration = randint(2, 10) * FPS
+        self.start, self.finish = None, None
+        self.cost = 0
+
+    def order_generate(self):
+        route = list(self.city.route.items())
+        self.start, self.finish = sample(route, 2)
+        distance = abs(self.start[1] - self.finish[1])
+        self.cost = round(distance * (50 / 11000))
+
+    def update(self):
+        if self.step == 0:  # Without work
+            if self.duration:
+                self.duration -= 1
+            else:
+                self.order_generate()
+                print(self.start, self.finish, self.cost)
+                self.city.display.set_place(self.start)
+                self.step = 1
+        elif self.step == 1:  # Accepted order
+            if (self.city.place.place == self.start[0]
+                    and abs(self.city.taxi.speed) < 1):
+                self.city.display.set_place(self.finish)
+                self.step = 2
+        elif self.step == 2:  # Take the pers
+            if (self.city.place.place == self.finish[0]
+                    and abs(self.city.taxi.speed) < 1):
+                self.city.display.place = pygame.surface.Surface((0, 0))
+                self.city.display.meters = pygame.surface.Surface((0, 0))
+                self.step = 3
+        elif self.step == 3:  # Good job
+            print("GOOD JOB + $" + str(self.cost))
+            self.duration = randint(2, 10) * FPS
+            self.step = 0
 
 
 class GameObject(pygame.sprite.Sprite):
@@ -413,7 +452,7 @@ class Ending:
     def render(self, screen):
         header, text, position = "", "", 650
         if self.end != 0:  # Black screen
-            self.alpha += 6 if self.alpha < 255 * 2 else 0
+            self.alpha += 8 if self.alpha < 255 * 2 else 0
             surface = pygame.Surface((WIDTH, HEIGHT))
             surface.fill("black")
             surface.set_alpha(self.alpha if self.alpha < 255 else 255)
@@ -424,7 +463,7 @@ class Ending:
                     self.prisoner.draw(screen)
                     self.grid.image.set_alpha(self.alpha - 255)
                     if self.grid.rect.y < 105:
-                        self.grid.rect.y += 15
+                        self.grid.rect.y += 16
                     self.grid.draw(screen)
                     header = "ВЫ СБИЛИ ЧЕЛОВЕКА!"
                     text = """Пешеход скончался на месте.
@@ -436,7 +475,7 @@ class Ending:
                     self.tombstone.image.set_alpha(self.alpha - 255)
                     self.tombstone.draw(screen)
                     if self.tombstone.rect.y < 105:
-                        self.tombstone.rect.y += 10
+                        self.tombstone.rect.y += 14
                     position -= 110
                     header = "ВЫ РАЗБИЛСЬ НАСМЕРТЬ!"
                 position1 = position + (255 * 2 - self.alpha) * 0.7

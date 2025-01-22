@@ -186,14 +186,12 @@ class FirstCity(City):
         self.route = {v: sum(k) // 2 for k, v in self.places.items()
                       if v not in ("Заправка",)}
         # Ambient setting
-        # GameObject("build/business.png", 600, (-250, -100), self.background)
-        # GameObject("build/gas.png", 500, (250, -15), self.background)
         GameObject("signs/stop.png", 150, (-5550, 15), self.on_road)
         GameObject("build/college.png", 400, (-1250, -15), self.background)
         GameObject("build/home.png", 700, (-1800, -60), self.background)
         GameObject("build/shop.png", 400, (-850, -15), self.background)
-        GameObject("build/business2.png", 750, (-250, -100), self.background)
-        GameObject("build/gas2.png", 750, (550, -55), self.background)
+        GameObject("build/business.png", 750, (-250, -100), self.background)
+        GameObject("build/gas.png", 750, (550, -55), self.background)
         GameObject("build/station.png", 800, (1300, -80), self.background)
         GameObject("build/farm.png", 600, (2050, 0), self.background)
         self.position = 4700

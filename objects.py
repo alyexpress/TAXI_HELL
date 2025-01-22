@@ -37,7 +37,7 @@ class GameControl:
                 self.city.display.meters = pygame.surface.Surface((0, 0))
                 self.step = 3
         elif self.step == 3:  # Good job
-            print("GOOD JOB + $" + str(self.cost))
+            self.city.db.money += self.cost
             self.duration = randint(2, 10) * FPS
             self.step = 0
 

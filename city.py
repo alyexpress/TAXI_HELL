@@ -34,12 +34,11 @@ class StartScreen:
 
 
 class City:
-    def __init__(self, screen, taxi: Taxi):
-        self.screen = screen
-        self.taxi = taxi
+    def __init__(self, screen, db, taxi: Taxi):
+        self.screen, self.db, self.taxi = screen, db, taxi
         self.sky = pygame.Surface((1400, 800))
         self.sky.fill("blue")
-        self.length = [-6000, 5000]
+        self.length = [-5500, 5000]
         self.position = 0
         self.parallax = 3
         self.paused = False
@@ -53,7 +52,7 @@ class City:
         self.ending = Ending()
         # Init UI
         self.place, self.places = Place(), {}
-        self.rating, self.counter = Rating(), Counter()
+        self.rating, self.counter = Rating(), Counter(self)
         self.speedometer, self.fuel = Speedometer(), Fuel()
         self.display, self.radio = Display(), Radio()
         # Game control
@@ -89,6 +88,7 @@ class City:
         self.speedometer.update(self.taxi.speed)
         self.place.update(self.position, self.places)
         self.display.update(self.position)
+        self.counter.update()
 
     def car_generation(self):
         count = len(self.left_cars) + len(self.right_cars)
@@ -172,18 +172,31 @@ class City:
 
 
 class FirstCity(City):
-    def __init__(self, screen: pygame.surface.Surface):
-        super().__init__(screen, Taxi("taxi.png", 300, (0, 105)))
+    def __init__(self, screen: pygame.surface.Surface, db):
+        super().__init__(screen, db, Taxi("taxi.png", 300, (0, 105)))
         self.sky = load_image("sky.jpg")
         # Places setting
-        self.places = {(400, 1000): "Бизнес центр",
-                       (-1050, -450): "Заправка"}
-        self.route = {"Бизнес центр": 700,
-                      "Заправка": -750}
+        self.places = {(4700, 5000): "Личный Дом",
+                       (3350, 4150): "Колледж",
+                       (2000, 2800): "Магазин",
+                       (125, 1325): "Бизнес центр",
+                       (-2050, -900): "Заправка",
+                       (-4500, -3300): "Станция",
+                       (-5500, -5490): "Ферма"}
+        self.route = {v: sum(k) // 2 for k, v in self.places.items()
+                      if v not in ("Заправка",)}
         # Ambient setting
-        GameObject("build/business.png", 600, (-250, -100), self.background)
-        GameObject("build/gas.png", 500, (250, -15), self.background)
+        # GameObject("build/business.png", 600, (-250, -100), self.background)
+        # GameObject("build/gas.png", 500, (250, -15), self.background)
         GameObject("signs/stop.png", 150, (-5550, 15), self.on_road)
+        GameObject("build/college.png", 400, (-1250, -15), self.background)
+        GameObject("build/home.png", 700, (-1800, -60), self.background)
+        GameObject("build/shop.png", 400, (-850, -15), self.background)
+        GameObject("build/business2.png", 750, (-250, -100), self.background)
+        GameObject("build/gas2.png", 750, (550, -55), self.background)
+        GameObject("build/station.png", 800, (1300, -80), self.background)
+        GameObject("build/farm.png", 600, (2050, 0), self.background)
+        self.position = 4700
         # Camera setting
         GameObject("signs/camera.png", 200, (2800, -10), self.on_road)
         GameObject("signs/sixty.png", 150, (2000, 15), self.on_road)

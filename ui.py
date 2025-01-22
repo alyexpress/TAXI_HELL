@@ -54,15 +54,22 @@ class Speedometer:
 
 
 class Counter:
-    def __init__(self):
+    def __init__(self, city):
         self.intro = pygame.font.Font(font_intro, 50)
         self.small_intro = pygame.font.Font(font_intro, 40)
+        self.db = city.db
         time = "00:00"
-        money = "$200"
+        self.show_money, money = self.db.money, f"${self.db.money}"
         self.timer = self.intro.render(time, True, "#333333")
         self.money = self.small_intro.render(money, True, "#009900")
         self.background = load_image('counter.png', UI_DIR)
         self.background.set_alpha(200)
+
+    def update(self):
+        if self.show_money < self.db.money:
+            self.show_money += 1
+            args = f"${self.show_money}", True, "#009900"
+            self.money = self.small_intro.render(*args)
 
     def draw(self, screen):
         screen.blit(self.background, (1230, 10))

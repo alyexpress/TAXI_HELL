@@ -1,4 +1,4 @@
-VERSION = 3.3
+VERSION = 4.0
 WINDOW_TITLE = f"TaxiHell – Yandex LMS (v{VERSION})"
 WIDTH, HEIGHT = 1400, 800
 
@@ -8,4 +8,4 @@ SPRITES_DIR = 'sprites'
 SYSTEM_DIR = 'system'
 UI_DIR = 'ui'
 
-DATABASE_NAME = "database.db"
+DATABASE_NAME = "saving.txt"

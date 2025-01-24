@@ -1,6 +1,6 @@
 import pygame.surface
 
-from config import WIDTH, UI_DIR
+from config import WIDTH, UI_DIR, FPS
 from options import *
 
 
@@ -57,15 +57,26 @@ class Counter:
     def __init__(self, city):
         self.intro = pygame.font.Font(font_intro, 50)
         self.small_intro = pygame.font.Font(font_intro, 40)
-        self.db = city.db
-        time = "00:00"
+        self.db, self.time, self.sec, self.stop = city.db, 0, 0, True
         self.show_money, money = self.db.money, f"${self.db.money}"
-        self.timer = self.intro.render(time, True, "#333333")
+        self.timer = self.intro.render("00:00", True, "#333333")
         self.money = self.small_intro.render(money, True, "#009900")
         self.background = load_image('counter.png', UI_DIR)
         self.background.set_alpha(200)
 
+    def update_time(self, seconds):
+        color = "red" if seconds < 0 else "#333333"
+        minute, sec = abs(seconds) // 60, abs(seconds) % 60
+        time = f"{'' if minute > 9 else 0}{minute}"
+        time += f":{'' if sec > 9 else 0}{sec}"
+        self.timer = self.intro.render(time, True, color)
+
     def update(self):
+        if self.sec > 0 and not self.stop:
+            self.sec -= 1
+        elif not self.stop:
+            self.time, self.sec = self.time - 1, FPS
+            self.update_time(self.time)
         if self.show_money < self.db.money:
             self.show_money += 1
             args = f"${self.show_money}", True, "#009900"

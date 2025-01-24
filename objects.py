@@ -8,13 +8,19 @@ class GameControl:
         self.city, self.step = city, 0
         self.duration = randint(2, 10) * FPS
         self.start, self.finish = None, None
-        self.cost = 0
+        self.cost, self.times = 0, []
+        self.orders, self.stars = 0, 5
 
     def order_generate(self):
         route = list(self.city.route.items())
         self.start, self.finish = sample(route, 2)
-        distance = abs(self.start[1] - self.finish[1])
-        self.cost = round(distance * (50 / 11000))
+        distance = abs(self.city.position - self.start[1])
+        distance_to = abs(self.start[1] - self.finish[1])
+        level_time = (30 * (10 - self.city.db.level) + 450) / 11000
+        self.times = [round(distance ** 0.65 * level_time),
+                      round(distance_to ** 0.65 * level_time)]
+        self.times = list(map(lambda x: 6 if x < 6 else x, self.times))
+        self.cost = round(distance_to * (50 / 11000))
 
     def update(self):
         if self.step == 0:  # Without work
@@ -22,24 +28,45 @@ class GameControl:
                 self.duration -= 1
             else:
                 self.order_generate()
-                print(self.start, self.finish, self.cost)
                 self.city.display.set_place(self.start)
-                self.step = 1
+                self.city.counter.time = self.times[0]
+                self.city.counter.sec, self.step = 0, 1
+                self.city.counter.stop = False
         elif self.step == 1:  # Accepted order
+            if self.city.counter.time < -5:
+                self.stars, self.step = 1, 3
+            elif self.city.counter.time == -1 and \
+                    self.city.counter.sec == FPS:
+                self.stars -= 1
             if (self.city.place.place == self.start[0]
                     and abs(self.city.taxi.speed) < 1):
                 self.city.display.set_place(self.finish)
-                self.step = 2
+                self.city.counter.time = self.times[1]
+                self.city.counter.sec, self.step = 0, 2
         elif self.step == 2:  # Take the pers
+            if self.city.counter.time in (-1, -6) and \
+                    self.city.counter.sec == FPS:
+                self.stars -= 1
+                if self.city.counter.time == -6:
+                    self.cost //= 2
             if (self.city.place.place == self.finish[0]
                     and abs(self.city.taxi.speed) < 1):
-                self.city.display.place = pygame.surface.Surface((0, 0))
-                self.city.display.meters = pygame.surface.Surface((0, 0))
+                self.city.db.money += self.cost
+                self.orders += 1
+                if self.orders == 3 and self.city.db.level < 10:
+                    self.city.db.level += 1
+                    self.orders = 0
                 self.step = 3
         elif self.step == 3:  # Good job
-            self.city.db.money += self.cost
+            self.city.db.rating.append(self.stars)
+            print(self.city.db.rating)
+            print(sum(self.city.db.rating) / len(self.city.db.rating))
+            self.city.display.place = pygame.surface.Surface((0, 0))
+            self.city.display.meters = pygame.surface.Surface((0, 0))
+            self.city.counter.time, self.city.counter.stop = 0, True
+            self.city.counter.update_time(self.city.counter.time)
             self.duration = randint(2, 10) * FPS
-            self.step = 0
+            self.stars, self.step = 5, 0
 
 
 class GameObject(pygame.sprite.Sprite):

@@ -69,6 +69,10 @@ class City:
                 self.taxi.rect.x + speed > self.taxi.center):
             self.taxi.rect.x = self.taxi.center
         else:
+            print(self.length[0] + speed > self.position,
+                self.taxi.rect.x + speed < self.taxi.center,
+                self.length[1] + speed < self.position,
+                self.taxi.rect.x + speed > self.taxi.center)
             self.taxi.rect.x -= speed
         if not self.paused:
             self.game_control.update()
@@ -116,6 +120,7 @@ class City:
                         self.taxi.speed /= 3
                         self.taxi.acceleration = 0
                         person.death, self.ending.end = True, 1
+                        self.db.clear()
         if self.zebra.traffic.queue[self.zebra.traffic.color] != 2:
             args = self.zebra, self.right_cars, self.left_cars
             self.car_control.stop(zebra_collision(*args), self.zebra)
@@ -135,6 +140,7 @@ class City:
                     if car.right != self.taxi.right:
                         car.speed, self.ending.end = 0, 2
                         self.paused = True
+                        self.db.clear()
 
     def render(self):
         if self.ending.alpha < 255:
@@ -200,13 +206,13 @@ class FirstCity(City):
         GameObject("signs/sixty.png", 150, (2000, 15), self.on_road)
         GameObject("signs/sixty.png", 150, (4000, 15), self.on_road)
         # Zebra setting
-        zebra = self.zebra = Zebra(-1000, self.on_road)
+        zebra = self.zebra = Zebra(-1500, self.on_road)
         Person("pers/cartman.png", 80, (35, 56), self.front, zebra)
         Person("pers/kyle.png", 75, (50, 56), self.front, zebra, speed=0.6)
         Person("pers/stan.png", 80, (50, 55), self.front, zebra, speed=0.6)
         Person("pers/kenny.png", 75, (50, 56), self.front, zebra, speed=0.7)
-        GameObject("signs/person.png", 150, (-350, 17), self.on_road)
-        GameObject("signs/person.png", 150, (-1500, 17), self.on_road)
+        GameObject("signs/person.png", 150, (-850, 17), self.on_road)
+        GameObject("signs/person.png", 150, (-2000, 17), self.on_road)
         # Cars setting
         self.car_control.add("cars/red_car.png", 290, (-300, 180))
         self.car_control.add("cars/white_car.png", 280, (-300, 185))

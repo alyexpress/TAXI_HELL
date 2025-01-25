@@ -95,19 +95,43 @@ class Counter:
 
 
 class Fuel:
-    def __init__(self):
+    def __init__(self, city):
+        self.db = city.db
         red = load_image("speedometer/fuel_line.png", UI_DIR)
         yellow = load_image("speedometer/fuel_line.png", UI_DIR)
         green = load_image("speedometer/fuel_line.png", UI_DIR)
         red.fill("#ff0000", special_flags=pygame.BLEND_RGBA_MIN)
         yellow.fill("#ffaa00", special_flags=pygame.BLEND_RGBA_MIN)
         green.fill("#00cc00", special_flags=pygame.BLEND_RGBA_MIN)
-        self.lines = [red, yellow, green]
+        self.lines, self.fill_time = [red, yellow, green], -1
+        self.sec = (10 - self.db.level) * 200 + 5000
         self.sign = load_scaled_image("speedometer/fuel_sign.png", (47, 60))
+
+    def refill(self):
+        self.db.money -= 10 * (6 - self.db.fuel)
+        self.fill_time = FPS
+
+
+
+
+    def update(self, speed):
+        if self.fill_time > 0:
+            self.fill_time -= 1
+        if self.fill_time == 0:
+            self.db.fuel += 1
+            if self.db.fuel < 6:
+                self.fill_time = FPS
+            else:
+                self.fill_time = -1
+        if self.sec - abs(speed) >= 0:
+            self.sec -= abs(speed)
+        else:
+            self.db.fuel -= 1
+            self.sec = (10 - self.db.level) * 200 + 5000
 
     def draw(self, screen):
         screen.blit(self.sign, (300, 710))
-        for i in range(3):
+        for i in range(self.db.fuel):
             screen.blit(self.lines[i // 2], (220, 765 - i * 15))
 
 

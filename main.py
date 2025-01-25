@@ -33,6 +33,9 @@ if __name__ == '__main__':
                             action = 1
                         if event.key == pygame.K_SPACE:
                             action = -2
+                        if event.key == pygame.K_e:
+                            if city.place.place == "Заправка":
+                                city.fuel.refill()
                         if event.key == pygame.K_q:
                             print(city.position)
                 elif type(city) == StartScreen:

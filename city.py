@@ -53,7 +53,7 @@ class City:
         # Init UI
         self.place, self.places = Place(self.check_camera), {}
         self.rating, self.counter = Rating(), Counter(self)
-        self.speedometer, self.fuel = Speedometer(), Fuel()
+        self.speedometer, self.fuel = Speedometer(), Fuel(self)
         self.display, self.radio = Display(), Radio()
         # Game control
         self.game_control = GameControl(self)
@@ -91,6 +91,7 @@ class City:
         self.taxi.update(self.position)
         # UI updating
         self.speedometer.update(self.taxi.speed)
+        self.fuel.update(self.taxi.speed)
         self.place.update(self.position, self.places)
         self.display.update(self.position)
         self.counter.update()

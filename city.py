@@ -51,7 +51,7 @@ class City:
         self.car_control = CarController(right, left)
         self.ending = Ending()
         # Init UI
-        self.place, self.places = Place(), {}
+        self.place, self.places = Place(self.check_camera), {}
         self.rating, self.counter = Rating(), Counter(self)
         self.speedometer, self.fuel = Speedometer(), Fuel()
         self.display, self.radio = Display(), Radio()
@@ -69,10 +69,11 @@ class City:
                 self.taxi.rect.x + speed > self.taxi.center):
             self.taxi.rect.x = self.taxi.center
         else:
-            print(self.length[0] + speed > self.position,
-                self.taxi.rect.x + speed < self.taxi.center,
-                self.length[1] + speed < self.position,
-                self.taxi.rect.x + speed > self.taxi.center)
+            # print(self.length[0] + speed > self.position,
+            #     self.taxi.rect.x + speed < self.taxi.center,
+            #     self.length[1] + speed < self.position,
+            #     self.taxi.rect.x + speed > self.taxi.center)
+            print(self.taxi.rect.x, speed, self.taxi.center)
             self.taxi.rect.x -= speed
         if not self.paused:
             self.game_control.update()
@@ -142,6 +143,15 @@ class City:
                         self.paused = True
                         self.db.clear()
 
+    def check_camera(self):
+        if abs(self.taxi.speed * 9.3) > 60:
+            if self.db.money >= 20:
+                self.db.money -= 20
+            else:
+                self.ending.end = 3
+            return True
+        return False
+
     def render(self):
         if self.ending.alpha < 255:
             self.screen.blit(self.sky, (0, 0))
@@ -187,10 +197,11 @@ class FirstCity(City):
                        (2000, 2800): "Магазин",
                        (125, 1325): "Бизнес центр",
                        (-2050, -900): "Заправка",
+                       (-3300, -2850): "Камера",
                        (-4500, -3300): "Станция",
                        (-5500, -5490): "Ферма"}
         self.route = {v: sum(k) // 2 for k, v in self.places.items()
-                      if v not in ("Заправка",)}
+                      if v not in ("Заправка", "Камера")}
         # Ambient setting
         GameObject("signs/stop.png", 150, (-5550, 15), self.on_road)
         GameObject("build/college.png", 400, (-1250, -15), self.background)

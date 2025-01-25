@@ -12,11 +12,16 @@ def load_scaled_image(filename, size, path=UI_DIR):
 class Rating:
     def __init__(self):
         self.intro = pygame.font.Font(font_intro, 50)
-        self.text = self.intro.render("5.0", True, "#333333")
+        self.text = self.intro.render("0.0", True, "#333333")
         self.text = pygame.transform.rotozoom(self.text, 22, 1)
         self.star = load_scaled_image('rating/star.png', (60, 60))
         self.background = load_image('rating/background.png', UI_DIR)
         self.background.set_alpha(230)
+
+    def update_rating(self, stars):
+        stars = str(round(stars, 1))
+        self.text = self.intro.render(stars, True, "#333333")
+        self.text = pygame.transform.rotozoom(self.text, 22, 1)
 
     def draw(self, screen):
         screen.blit(self.background, (0, 0))
@@ -77,9 +82,10 @@ class Counter:
         elif not self.stop:
             self.time, self.sec = self.time - 1, FPS
             self.update_time(self.time)
-        if self.show_money < self.db.money:
-            self.show_money += 1
-            args = f"${self.show_money}", True, "#009900"
+        if self.show_money != self.db.money:
+            color = "0099" if self.show_money < self.db.money else "CC00"
+            self.show_money += 1 if self.show_money < self.db.money else -1
+            args = f"${self.show_money}", True, f"#{color}00"
             self.money = self.small_intro.render(*args)
 
     def draw(self, screen):
@@ -101,12 +107,13 @@ class Fuel:
 
     def draw(self, screen):
         screen.blit(self.sign, (300, 710))
-        for i in range(6):
+        for i in range(3):
             screen.blit(self.lines[i // 2], (220, 765 - i * 15))
 
 
 class Place:
-    def __init__(self):
+    def __init__(self, camera_func):
+        self.camera_func, self.fine = camera_func, False
         self.intro = pygame.font.Font(font_intro, 60)
         self.text = self.intro.render("", True, "white")
         self.place, self.x, self.y = "", 0, -50
@@ -114,11 +121,16 @@ class Place:
     def update(self, position, place):
         for i, j in place.keys():
             if i < position < j:
-                self.x = position - (i + j) // 2
-                self.place = place[i, j]
-                args = self.place, True, "white"
-                self.text = self.intro.render(*args)
-                return
+                if place[i, j] == "Камера":
+                    if not self.fine:
+                        self.fine = self.camera_func()
+                else:
+                    self.fine = False
+                    self.x = position - (i + j) // 2
+                    self.place = place[i, j]
+                    args = self.place, True, "white"
+                    self.text = self.intro.render(*args)
+                    return
         self.place = ""
 
     def draw(self, screen):

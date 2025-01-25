@@ -59,8 +59,8 @@ class GameControl:
                 self.step = 3
         elif self.step == 3:  # Good job
             self.city.db.rating.append(self.stars)
-            print(self.city.db.rating)
-            print(sum(self.city.db.rating) / len(self.city.db.rating))
+            stars = sum(self.city.db.rating) / len(self.city.db.rating)
+            self.city.rating.update_rating(stars)
             self.city.display.place = pygame.surface.Surface((0, 0))
             self.city.display.meters = pygame.surface.Surface((0, 0))
             self.city.counter.time, self.city.counter.stop = 0, True

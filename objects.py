@@ -60,7 +60,7 @@ class GameControl:
         elif self.step == 3:  # Good job
             self.city.db.rating.append(self.stars)
             stars = sum(self.city.db.rating) / len(self.city.db.rating)
-            self.city.rating.update_rating(stars)
+            self.city.rating.update(stars, self.city.db.level)
             self.city.display.place = pygame.surface.Surface((0, 0))
             self.city.display.meters = pygame.surface.Surface((0, 0))
             self.city.counter.time, self.city.counter.stop = 0, True
@@ -205,6 +205,7 @@ class Taxi(GameObject):
         if 0 in (self.go_forward, self.go_backward):
             self.right = not self.right
             self.image = self.get_image()
+            self.mask = pygame.mask.from_surface(self.image)
         else:
             self.go_turn = True
 
@@ -212,6 +213,7 @@ class Taxi(GameObject):
         self.degree += degree
         args = self.get_image(), self.degree, 1
         self.image = pygame.transform.rotozoom(*args)
+        self.mask = pygame.mask.from_surface(self.image)
 
     def change_line(self, line):
         if line == Taxi.FORWARD and self.go_forward == 0:

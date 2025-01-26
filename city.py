@@ -52,7 +52,7 @@ class City:
         self.ending = Ending()
         # Init UI
         self.place, self.places = Place(self.check_camera), {}
-        self.rating, self.counter = Rating(), Counter(self)
+        self.rating, self.counter = Rating(self), Counter(self)
         self.speedometer, self.fuel = Speedometer(), Fuel(self)
         self.display, self.radio = Display(), Radio()
         # Game control
@@ -60,24 +60,25 @@ class City:
 
     def set_position(self, speed):
         # road borders
-        if (self.length[0] <= self.position + speed <= self.length[1]
+        if (self.length[0] < self.position < self.length[1]
                 and self.taxi.rect.x == self.taxi.center):
             self.position += speed
+            if self.position > self.length[1]:
+                self.position = self.length[1]
+            elif self.position < self.length[0]:
+                self.position = self.length[0]
         elif (self.length[0] + speed > self.position and
                 self.taxi.rect.x + speed < self.taxi.center) \
                 or (self.length[1] + speed < self.position and
                 self.taxi.rect.x + speed > self.taxi.center):
             self.taxi.rect.x = self.taxi.center
+            self.position += speed
         else:
-            # print(self.length[0] + speed > self.position,
-            #     self.taxi.rect.x + speed < self.taxi.center,
-            #     self.length[1] + speed < self.position,
-            #     self.taxi.rect.x + speed > self.taxi.center)
-            print(self.taxi.rect.x, speed, self.taxi.center)
             self.taxi.rect.x -= speed
         if not self.paused:
             self.game_control.update()
             self.set_ambient_position()
+            self.check_fuel()
             self.car_generation()
             self.check_collisions()
 
@@ -95,6 +96,18 @@ class City:
         self.place.update(self.position, self.places)
         self.display.update(self.position)
         self.counter.update()
+
+    def check_fuel(self):
+        if self.db.fuel == 0:
+            self.taxi.acceleration = -self.taxi.auto_brake
+            if self.taxi.speed == 0 and \
+                    self.place.place != "Заправка":
+                self.ending.end = 4
+                self.db.clear()
+            if abs(self.taxi.speed) < 0.1:
+                self.taxi.acceleration = 0
+        elif self.taxi.acceleration <= 0:
+            self.taxi.acceleration = 4
 
     def car_generation(self):
         count = len(self.left_cars) + len(self.right_cars)
@@ -145,11 +158,12 @@ class City:
                         self.db.clear()
 
     def check_camera(self):
-        if abs(self.taxi.speed * 9.3) > 60:
+        if abs(self.taxi.speed * 8.9) > 60:
             if self.db.money >= 20:
                 self.db.money -= 20
             else:
                 self.ending.end = 3
+                self.db.clear()
             return True
         return False
 
@@ -193,14 +207,14 @@ class FirstCity(City):
         super().__init__(screen, db, Taxi("taxi.png", 300, (0, 105)))
         self.sky = load_image("sky.jpg")
         # Places setting
-        self.places = {(4700, 5000): "Личный Дом",
+        self.places = {(4700, 5001): "Личный Дом",
                        (3350, 4150): "Колледж",
                        (2000, 2800): "Магазин",
                        (125, 1325): "Бизнес центр",
                        (-2050, -900): "Заправка",
                        (-3300, -2850): "Камера",
                        (-4500, -3300): "Станция",
-                       (-5500, -5490): "Ферма"}
+                       (-5501, -5490): "Ферма"}
         self.route = {v: sum(k) // 2 for k, v in self.places.items()
                       if v not in ("Заправка", "Камера")}
         # Ambient setting

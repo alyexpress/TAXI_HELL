@@ -10,23 +10,28 @@ def load_scaled_image(filename, size, path=UI_DIR):
 
 
 class Rating:
-    def __init__(self):
-        self.intro = pygame.font.Font(font_intro, 50)
-        self.text = self.intro.render("0.0", True, "#333333")
-        self.text = pygame.transform.rotozoom(self.text, 22, 1)
-        self.star = load_scaled_image('rating/star.png', (60, 60))
+    def __init__(self, city):
+        self.star = load_scaled_image('rating/star.png', (55, 55))
         self.background = load_image('rating/background.png', UI_DIR)
-        self.background.set_alpha(230)
+        self.background.set_alpha(220)
+        self.intro = pygame.font.Font(font_intro, 50)
+        self.small = pygame.font.Font(font_intro, 36)
+        stars = (sum(city.db.rating) / len(city.db.rating)
+                 if city.db.rating else 0.)
+        self.text, self.level, self.x = None, None, None
+        self.update(stars, city.db.level)
 
-    def update_rating(self, stars):
-        stars = str(round(stars, 1))
+    def update(self, stars, level):
+        stars, level = str(round(stars, 1)), f"Level {level + 1}"
         self.text = self.intro.render(stars, True, "#333333")
-        self.text = pygame.transform.rotozoom(self.text, 22, 1)
+        self.level = self.small.render(level, True, "#333333")
+        self.x = (180 - self.level.get_width()) // 2
 
     def draw(self, screen):
-        screen.blit(self.background, (0, 0))
-        screen.blit(self.star, (10, 30))
-        screen.blit(self.text, (70, 5))
+        screen.blit(self.background, (10, 10))
+        screen.blit(self.star, (15, 13))
+        screen.blit(self.text, (78, 25))
+        screen.blit(self.level, (self.x, 75))
 
 
 class Speedometer:
@@ -66,7 +71,7 @@ class Counter:
         self.show_money, money = self.db.money, f"${self.db.money}"
         self.timer = self.intro.render("00:00", True, "#333333")
         self.money = self.small_intro.render(money, True, "#009900")
-        self.background = load_image('counter.png', UI_DIR)
+        self.background = load_image('rating/background.png', UI_DIR)
         self.background.set_alpha(200)
 
     def update_time(self, seconds):
@@ -96,7 +101,8 @@ class Counter:
 
 class Fuel:
     def __init__(self, city):
-        self.db = city.db
+        self.db, self.place = city.db, city.place
+        self.sec = (10 - self.db.level) * 200 + 5000
         red = load_image("speedometer/fuel_line.png", UI_DIR)
         yellow = load_image("speedometer/fuel_line.png", UI_DIR)
         green = load_image("speedometer/fuel_line.png", UI_DIR)
@@ -104,23 +110,23 @@ class Fuel:
         yellow.fill("#ffaa00", special_flags=pygame.BLEND_RGBA_MIN)
         green.fill("#00cc00", special_flags=pygame.BLEND_RGBA_MIN)
         self.lines, self.fill_time = [red, yellow, green], -1
-        self.sec = (10 - self.db.level) * 200 + 5000
         self.sign = load_scaled_image("speedometer/fuel_sign.png", (47, 60))
 
     def refill(self):
-        self.db.money -= 10 * (6 - self.db.fuel)
+        self.db.money -= 5 * (6 - self.db.fuel)
         self.fill_time = FPS
-
-
-
 
     def update(self, speed):
         if self.fill_time > 0:
             self.fill_time -= 1
+            self.sec = (10 - self.db.level) * 200 + 5000
         if self.fill_time == 0:
-            self.db.fuel += 1
-            if self.db.fuel < 6:
-                self.fill_time = FPS
+            if self.place.place == "Заправка":
+                self.db.fuel += 1
+                if self.db.fuel < 6:
+                    self.fill_time = FPS
+                else:
+                    self.fill_time = -1
             else:
                 self.fill_time = -1
         if self.sec - abs(speed) >= 0:
@@ -174,6 +180,7 @@ class Display:
         self.display = pygame.surface.Surface((220, 110))
         self.display.fill("#111120")
         self.intro = pygame.font.Font(font_intro, 30)
+        self.small = pygame.font.Font(font_intro, 25)
         self.place = pygame.surface.Surface((0, 0))
         self.meters = pygame.surface.Surface((0, 0))
         self.x, self.right = 0, False

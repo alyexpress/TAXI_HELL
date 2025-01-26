@@ -15,6 +15,7 @@ if __name__ == '__main__':
     city = FirstCity(screen, db)
     # city = StartScreen(screen)
     action, running = 0, True
+    actions = {pygame.K_a: -1, pygame.K_d: 1, pygame.K_SPACE: -2}
     while running:
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
@@ -23,16 +24,13 @@ if __name__ == '__main__':
                         if event.key in (pygame.K_SPACE, pygame.K_KP_ENTER):
                             city = StartScreen(screen)
                     else:
-                        if event.key == pygame.K_s:
-                            city.taxi.change_line(Taxi.FORWARD)
-                        if event.key == pygame.K_w:
-                            city.taxi.change_line(Taxi.BACKWARD)
-                        if event.key == pygame.K_a:
-                            action = -1
-                        if event.key == pygame.K_d:
-                            action = 1
-                        if event.key == pygame.K_SPACE:
-                            action = -2
+                        if city.taxi.acceleration >= 0:
+                            if event.key == pygame.K_s:
+                                city.taxi.change_line(Taxi.FORWARD)
+                            if event.key == pygame.K_w:
+                                city.taxi.change_line(Taxi.BACKWARD)
+                        if event.key in actions.keys():
+                            action = actions[event.key]
                         if event.key == pygame.K_e:
                             if city.place.place == "Заправка":
                                 city.fuel.refill()
@@ -56,6 +54,7 @@ if __name__ == '__main__':
                 running = False
         time = clock.tick(FPS)
         if type(city) == FirstCity and not city.paused:
+
             city.taxi.move(action, time)
         city.render()
         pygame.display.flip()

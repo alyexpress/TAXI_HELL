@@ -1,6 +1,7 @@
 import pygame.sprite
 
 from objects import *
+from music import *
 from ui import *
 
 
@@ -16,6 +17,8 @@ class StartScreen:
         self.intro = pygame.font.Font(font_intro, 200)
         self.small = pygame.font.Font(font_intro, 70)
         self.team = pygame.font.Font(font_intro, 30)
+        self.music = Music({"start.mp3": ("", "")})
+        self.music.play()
 
     def render(self):
         self.position -= 1
@@ -27,9 +30,8 @@ class StartScreen:
         self.screen.blit(self.black, (0, 0))
         text_render(self.screen, "TAXI", self.intro, "orange", (220, -100))
         text_render(self.screen, "HELL", self.intro, "red", (720, -100))
-        text = "(Press any key to start)"
+        text, team = "(Press any key to start)", "©ALYEXPRESS™"
         text_render(self.screen, text, self.small, "white", (320, 220))
-        team = "©ALYEXPRESS™"
         text_render(self.screen, team, self.team, "gray", (10, 730))
 
 
@@ -57,6 +59,16 @@ class City:
         self.display, self.radio = Display(), Radio()
         # Game control
         self.game_control = GameControl(self)
+        # Init Music
+        self.songs = {
+            "central.mp3": ("Владимирский централ", "Михаил Круг"),
+            "pobaram.mp3": ("По барам", "ANNA ASTI"),
+            "sochi.mp3": ("Город Сочи", "Трофимов Сергей"),
+            "nazare.mp3": ("На заре", "Альянс")
+        }
+        self.music = Music(self.songs)
+        self.music.play()
+        self.radio.update(*self.music.get())
 
     def set_position(self, speed):
         # road borders
@@ -102,7 +114,8 @@ class City:
             self.taxi.acceleration = -self.taxi.auto_brake
             if self.taxi.speed == 0 and \
                     self.place.place != "Заправка":
-                self.ending.end = 4
+                self.music.game_over(Music.NO_FUEL)
+                self.ending.end, self.paused = 4, True
                 self.db.clear()
             if abs(self.taxi.speed) < 0.1:
                 self.taxi.acceleration = 0
@@ -130,6 +143,7 @@ class City:
                         self.front.remove(person)
                         person.around(self.taxi, self.taxi.speed > 0)
                     elif not person.death:
+                        self.music.game_over(Music.CRASH)
                         self.front.add(person)
                         person.speed = -self.taxi.speed * 2
                         self.taxi.speed /= 3
@@ -153,6 +167,7 @@ class City:
                         and pygame.sprite.collide_mask(car, self.taxi)):
                     car.stop, self.taxi.speed = True, 0
                     if car.right != self.taxi.right:
+                        self.music.game_over(Music.CRASH)
                         car.speed, self.ending.end = 0, 2
                         self.paused = True
                         self.db.clear()
@@ -162,6 +177,7 @@ class City:
             if self.db.money >= 20:
                 self.db.money -= 20
             else:
+                self.music.game_over(Music.CRYING)
                 self.ending.end = 3
                 self.db.clear()
             return True

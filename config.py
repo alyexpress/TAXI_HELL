@@ -1,11 +1,17 @@
-VERSION = 4.0
-WINDOW_TITLE = f"TaxiHell – Yandex LMS (v{VERSION})"
-WIDTH, HEIGHT = 1400, 800
-
+# SYSTEM SETTINGS
+VERSION = 4.2
 FPS = 100
 
+# DIR SETTINGS
 SPRITES_DIR = 'sprites'
 SYSTEM_DIR = 'system'
+MUSIC_DIR = 'music'
 UI_DIR = 'ui'
 
+# WINDOW SETTINGS
+WIDTH, HEIGHT = 1400, 800
+WINDOW_TITLE = f"TaxiHell – Yandex LMS (v{VERSION})"
+ICON = "icon.jpg"
+
+# DATABASE SETTINGS
 DATABASE_NAME = "saving.txt"

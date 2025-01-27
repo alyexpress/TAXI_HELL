@@ -223,12 +223,19 @@ class Radio:
         self.next = load_scaled_image('radio/next.png', (50, 60))
         background = 'radio/background.png', (570, 130)
         self.background = load_scaled_image(*background)
-        self.music = self.font.render("Where is my mind", True, "black")
-        self.radio = self.font.render("Radio dorojnoe", True, "black")
+        self.music = self.font.render("", True, "black")
+        self.radio = self.font.render("", True, "black")
+        self.music_x, self.radio_x = 0, 0
+
+    def update(self, name, radio):
+        self.music = self.font.render(name, True, "black")
+        self.radio = self.font.render(radio, True, "black")
+        self.music_x = 1027 - self.music.get_width() // 2
+        self.radio_x = 1027 - self.radio.get_width() // 2
 
     def draw(self, screen):
         screen.blit(self.background, (820, 665))
-        screen.blit(self.music, (840, 690))
-        screen.blit(self.radio, (840, 730))
+        screen.blit(self.music, (self.music_x, 690))
+        screen.blit(self.radio, (self.radio_x, 730))
         screen.blit(self.pause, (1240, 709))
         screen.blit(self.next, (1305, 702))

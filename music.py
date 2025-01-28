@@ -9,6 +9,7 @@ class Music:
     CRASH = "game_over.mp3"
     NO_FUEL = "no_fuel.mp3"
     CRYING = "crying.mp3"
+    DIALOG = "dialog.mp3"
 
     def __init__(self, playlist: dict):
         pygame.mixer.init()
@@ -42,6 +43,12 @@ class Music:
     def stop(self):
         self.stopped = True
         pygame.mixer.music.stop()
+
+    def dialog(self):
+        self.index = (self.index - 1) % len(self.playlist)
+        file = os.path.join(MUSIC_DIR, self.DIALOG)
+        pygame.mixer.music.load(file)
+        pygame.mixer.music.play()
 
     def game_over(self, file):
         self.stop()

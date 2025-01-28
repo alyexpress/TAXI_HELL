@@ -225,17 +225,21 @@ class Radio:
         self.background = load_scaled_image(*background)
         self.music = self.font.render("", True, "black")
         self.radio = self.font.render("", True, "black")
-        self.music_x, self.radio_x = 0, 0
+        self.music_x, self.radio_x, self.paused = 0, 0, False
 
     def update(self, name, radio):
         self.music = self.font.render(name, True, "black")
         self.radio = self.font.render(radio, True, "black")
         self.music_x = 1027 - self.music.get_width() // 2
         self.radio_x = 1027 - self.radio.get_width() // 2
+        self.paused = False
 
     def draw(self, screen):
         screen.blit(self.background, (820, 665))
         screen.blit(self.music, (self.music_x, 690))
         screen.blit(self.radio, (self.radio_x, 730))
-        screen.blit(self.pause, (1240, 709))
+        if self.paused:
+            screen.blit(self.play, (1242, 709))
+        else:
+            screen.blit(self.pause, (1240, 709))
         screen.blit(self.next, (1305, 702))

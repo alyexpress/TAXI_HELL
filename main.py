@@ -39,7 +39,7 @@ if __name__ == '__main__':
                             if city.place.place == "Заправка":
                                 city.fuel.refill()
                         if event.key == pygame.K_q:
-                            print(city.position)
+                            city.music.dialog()
                 elif type(city) == StartScreen:
                     city.music.stop()
                     city = FirstCity(screen, db)
@@ -56,6 +56,7 @@ if __name__ == '__main__':
                         if 1240 < event.pos[0] < 1280 and \
                                 710 < event.pos[1] < 755:
                             city.music.pause()
+                            city.radio.paused = city.music.paused
                         elif 1300 < event.pos[0] < 1355 and \
                                 715 < event.pos[1] < 750:
                             city.music.next()

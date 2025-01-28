@@ -14,8 +14,8 @@ if __name__ == '__main__':
     pygame.display.set_icon(load_image(ICON, UI_DIR))
     db = Database(DATABASE_NAME)
     clock = pygame.time.Clock()
-    # city = FirstCity(screen, db)
-    city = StartScreen(screen)
+    city = FirstCity(screen, db)
+    # city = StartScreen(screen)
     MUSIC_END = pygame.USEREVENT
     pygame.mixer.music.set_endevent(MUSIC_END)
     action, running = 0, True
@@ -25,7 +25,7 @@ if __name__ == '__main__':
             if event.type == pygame.KEYDOWN:
                 if type(city) == FirstCity:
                     if city.ending.end and city.ending.alpha > 255:
-                        if event.key in (pygame.K_SPACE, pygame.K_KP_ENTER):
+                        if event.key in (pygame.K_SPACE, pygame.K_RETURN):
                             city = StartScreen(screen)
                     else:
                         if city.taxi.acceleration >= 0:
@@ -33,12 +33,19 @@ if __name__ == '__main__':
                                 city.taxi.change_line(Taxi.FORWARD)
                             if event.key == pygame.K_w:
                                 city.taxi.change_line(Taxi.BACKWARD)
+                        if city.display.new_order:
+                            if event.key == pygame.K_RETURN:
+                                city.game_control.accept()
+                            elif event.key in (pygame.K_BACKSPACE,
+                                               pygame.K_ESCAPE):
+                                city.game_control.cancel()
                         if event.key in actions.keys():
                             action = actions[event.key]
                         if event.key == pygame.K_e:
                             if city.place.place == "Заправка":
                                 city.fuel.refill()
-                        if event.key == pygame.K_q:
+                        if event.key == pygame.K_q and \
+                                city.game_control.step:
                             city.music.dialog()
                 elif type(city) == StartScreen:
                     city.music.stop()
@@ -52,7 +59,7 @@ if __name__ == '__main__':
                     if city.ending.end:
                         city.music.stop()
                         city = StartScreen(screen)
-                    else:
+                    else:  # Buttons click
                         if 1240 < event.pos[0] < 1280 and \
                                 710 < event.pos[1] < 755:
                             city.music.pause()
@@ -61,6 +68,12 @@ if __name__ == '__main__':
                                 715 < event.pos[1] < 750:
                             city.music.next()
                             city.radio.update(*city.music.get())
+                        if city.display.new_order and \
+                                730 < event.pos[1] < 775:
+                            if 470 < event.pos[0] < 570:
+                                city.game_control.accept()
+                            elif 580 < event.pos[0] < 650:
+                                city.game_control.cancel()
             if type(city) == FirstCity and event.type == pygame.KEYUP:
                 if (event.key == pygame.K_a and action == -1 or
                         event.key == pygame.K_d and action == 1

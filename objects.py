@@ -26,12 +26,12 @@ class GameControl:
         if self.step == 0:  # Without work
             if self.duration:
                 self.duration -= 1
-            else:
+            elif not self.city.display.new_order:
                 self.order_generate()
-                self.city.display.set_place(self.start)
-                self.city.counter.time = self.times[0]
-                self.city.counter.sec, self.step = 0, 1
-                self.city.counter.stop = False
+                self.city.display.set_new_order(self.cost)
+                self.duration = 10 * FPS
+            else:
+                self.cancel()
         elif self.step == 1:  # Accepted order
             if self.city.counter.time < -5:
                 self.stars, self.step = 1, 3
@@ -65,8 +65,19 @@ class GameControl:
             self.city.display.meters = pygame.surface.Surface((0, 0))
             self.city.counter.time, self.city.counter.stop = 0, True
             self.city.counter.update_time(self.city.counter.time)
-            self.duration = randint(2, 10) * FPS
-            self.stars, self.step = 5, 0
+            self.cancel()
+
+    def cancel(self):
+        self.city.display.new_order = False
+        self.duration = randint(2, 10) * FPS
+        self.stars, self.step = 5, 0
+
+    def accept(self):
+        self.city.display.new_order = False
+        self.city.display.set_place(self.start)
+        self.city.counter.time = self.times[0]
+        self.city.counter.sec, self.step = 0, 1
+        self.city.counter.stop = False
 
 
 class GameObject(pygame.sprite.Sprite):

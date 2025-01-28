@@ -180,10 +180,19 @@ class Display:
         self.display = pygame.surface.Surface((220, 110))
         self.display.fill("#111120")
         self.intro = pygame.font.Font(font_intro, 30)
+        self.large = pygame.font.Font(font_intro, 50)
         self.small = pygame.font.Font(font_intro, 25)
         self.place = pygame.surface.Surface((0, 0))
         self.meters = pygame.surface.Surface((0, 0))
+        self.order = self.small.render("НОВЫЙ ЗАКАЗ", True, "white")
+        self.zero = self.large.render("$0", True, "#dd0000")
+        self.new_order, self.cost = False, None
         self.x, self.right = 0, False
+
+    def set_new_order(self, cost):
+        args = f"${cost}", True, "#009900"
+        self.cost = self.large.render(*args)
+        self.new_order = True
 
     def set_place(self, place):
         (place, self.x), size = place, 30
@@ -208,6 +217,11 @@ class Display:
         screen.blit(self.wire, (679, 722))
         screen.blit(self.display, (450, 675))
         screen.blit(self.background, (430, 665))
+        if self.new_order:
+            screen.blit(self.order, (470, 690))
+            screen.blit(self.cost, (470, 730))
+            screen.blit(self.zero, (580, 730))
+            return
         screen.blit(self.place, (470, 695))
         y = 700 + self.place.get_height()
         if self.place.get_width() > 0:

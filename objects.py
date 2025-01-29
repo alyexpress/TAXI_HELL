@@ -34,29 +34,17 @@ class GameControl:
                 self.cancel()
         elif self.step == 1:  # Accepted order
             if self.city.counter.time < -5:
+                del self.city.place.actions[self.start[0]]
                 self.stars, self.step = 1, 3
             elif self.city.counter.time == -1 and \
                     self.city.counter.sec == FPS:
                 self.stars -= 1
-            if (self.city.place.place == self.start[0]
-                    and abs(self.city.taxi.speed) < 1):
-                self.city.display.set_place(self.finish)
-                self.city.counter.time = self.times[1]
-                self.city.counter.sec, self.step = 0, 2
         elif self.step == 2:  # Take the pers
             if self.city.counter.time in (-1, -6) and \
                     self.city.counter.sec == FPS:
                 self.stars -= 1
                 if self.city.counter.time == -6:
                     self.cost //= 2
-            if (self.city.place.place == self.finish[0]
-                    and abs(self.city.taxi.speed) < 1):
-                self.city.db.money += self.cost
-                self.orders += 1
-                if self.orders == 3 and self.city.db.level < 10:
-                    self.city.db.level += 1
-                    self.orders = 0
-                self.step = 3
         elif self.step == 3:  # Good job
             self.city.db.rating.append(self.stars)
             stars = sum(self.city.db.rating) / len(self.city.db.rating)
@@ -78,6 +66,29 @@ class GameControl:
         self.city.counter.time = self.times[0]
         self.city.counter.sec, self.step = 0, 1
         self.city.counter.stop = False
+        text = "Нажмите E чтобы посадить"
+        self.city.place.actions[self.start[0]] = text
+
+    def E_click(self):
+        if self.step == 1:  # Accepted order
+            if (self.city.place.place == self.start[0]
+                    and abs(self.city.taxi.speed) < 1):
+                del self.city.place.actions[self.start[0]]
+                self.city.display.set_place(self.finish)
+                self.city.counter.time = self.times[1]
+                self.city.counter.sec, self.step = 0, 2
+                text = "Нажмите E чтобы высадить"
+                self.city.place.actions[self.finish[0]] = text
+        elif self.step == 2:  # Take the pers
+            if (self.city.place.place == self.finish[0]
+                    and abs(self.city.taxi.speed) < 1):
+                del self.city.place.actions[self.finish[0]]
+                self.city.db.money += self.cost
+                self.orders += 1
+                if self.orders == 3:
+                    self.city.db.level += 1
+                    self.orders = 0
+                self.step = 3
 
 
 class GameObject(pygame.sprite.Sprite):
@@ -490,7 +501,7 @@ class Ending:
         self.prisoner.rect.x = 100
         self.grid.rect.y, self.grid.rect.x = -500, 110
         self.tombstone.rect.x, self.tombstone.rect.y = 50, -300
-        self.money.rect.x, self.money.rect.y = 50, 170
+        self.money.rect.x, self.money.rect.y = -400, 100
         self.fuel.rect.x, self.fuel.rect.y = 30, 170
 
     def render(self, screen):
@@ -523,24 +534,29 @@ class Ending:
                     position -= 110
                     header = "ВЫ РАЗБИЛСЬ НАСМЕРТЬ!"
                     text = """Произошла авария с лобовым
-столкновением. Машина сильно \nповреждена, и вы, к сожалению, 
-не выжили.Это трагический момент, \nкоторый оставит след в \nсердцах многих..."""
+столкновением по вашей вине.\nВодитель в которого вы врезались
+не выжил, как и вы. Разве пара\nлишних минут в дороге стоит
+двух человеческих жизней?\nРешайте сами..."""
                 elif self.end == 3:  # No money
                     self.money.image.set_alpha(self.alpha - 255)
                     self.money.draw(screen)
+                    if self.money.rect.x < -110:
+                        self.money.rect.x += 10
+                    position -= 40
                     header = "ВЫ ОБАНКРОТИЛИСЬ!"
                     text = """Вы потеряли работу из-за долгов.           
-Они накапливались, и  у вас\nне осталось денег платить
-за машину. Вы остались без \nсредств и не смогли \nпродолжить эту жизнь."""
+Они накапливались, и  у вас не\nосталось денег платить за машину.
+Вы остались без средств к\nсуществованию и не смогли
+продолжить эту жизнь..."""
                 elif self.end == 4:  # No fuel
                     self.fuel.image.set_alpha(self.alpha - 255)
                     self.fuel.draw(screen)
                     position -= 110
                     header = "ЗАКОНЧИЛОСЬ ТОПЛИВО!"
-                    text = """У вас закончилось топливо. 
-Ваш машина остановилась посреди 
-дороги и пассажиру 
-придётся идти пешком..."""
+                    text = """Ваша машина остановилась посреди 
+дороги, тем самым создав пробку.\nВы вызвали эвакуатор, который
+отвёз вашу машину в сервис.\nТеперь вы с пассажиром пойдёте
+по дороге до ближайшей\nавтобусной остановки..."""
                 position1 = position + (255 * 2 - self.alpha) * 0.7
                 position2 = position + (255 * 2 - self.alpha)
                 text_render(screen, header, self.intro,

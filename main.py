@@ -44,6 +44,8 @@ if __name__ == '__main__':
                         if event.key == pygame.K_e:
                             if city.place.place == "Заправка":
                                 city.fuel.refill()
+                            else:
+                                city.game_control.E_click()
                         if event.key == pygame.K_q and \
                                 city.game_control.step:
                             city.music.dialog()

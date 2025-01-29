@@ -113,8 +113,12 @@ class Fuel:
         self.sign = load_scaled_image("speedometer/fuel_sign.png", (47, 60))
 
     def refill(self):
-        self.db.money -= 5 * (6 - self.db.fuel)
+        cost = 5 * (6 - self.db.fuel)
+        if self.db.money < cost or cost == 0:
+            return False
+        self.db.money -= cost
         self.fill_time = FPS
+        return True
 
     def update(self, speed):
         if self.fill_time > 0:
@@ -145,8 +149,10 @@ class Place:
     def __init__(self, camera_func):
         self.camera_func, self.fine = camera_func, False
         self.intro = pygame.font.Font(font_intro, 60)
+        self.small = pygame.font.Font(font_intro, 30)
         self.text = self.intro.render("", True, "white")
         self.place, self.x, self.y = "", 0, -50
+        self.actions = {"Заправка": "Нажмите E чтобы заправиться"}
 
     def update(self, position, place):
         for i, j in place.keys():
@@ -170,6 +176,12 @@ class Place:
             self.y -= 4
         x = 0.4 * self.x + (WIDTH - self.text.get_width()) // 2
         screen.blit(self.text, (x, self.y))
+        if self.place in self.actions.keys():
+            text = self.actions[self.place]
+            text = self.small.render(text, True, "white")
+            x = 0.4 * self.x + (WIDTH - text.get_width()) // 2
+            screen.blit(text, (x, self.y + 60))
+
 
 
 class Display:

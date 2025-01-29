@@ -485,9 +485,13 @@ class Ending:
         self.prisoner = GameObject('end/prisoner.png')
         self.grid = GameObject('end/grid.png')
         self.tombstone = GameObject('end/tombstone.png')
+        self.money = GameObject('end/money.png')
+        self.fuel = GameObject('end/fuel.png')
         self.prisoner.rect.x = 100
         self.grid.rect.y, self.grid.rect.x = -500, 110
         self.tombstone.rect.x, self.tombstone.rect.y = 50, -300
+        self.money.rect.x, self.money.rect.y = 50, 170
+        self.fuel.rect.x, self.fuel.rect.y = 30, 170
 
     def render(self, screen):
         header, text, position = "", "", 650
@@ -518,6 +522,25 @@ class Ending:
                         self.tombstone.rect.y += 14
                     position -= 110
                     header = "ВЫ РАЗБИЛСЬ НАСМЕРТЬ!"
+                    text = """Произошла авария с лобовым
+столкновением. Машина сильно \nповреждена, и вы, к сожалению, 
+не выжили.Это трагический момент, \nкоторый оставит след в \nсердцах многих..."""
+                elif self.end == 3:  # No money
+                    self.money.image.set_alpha(self.alpha - 255)
+                    self.money.draw(screen)
+                    header = "ВЫ ОБАНКРОТИЛИСЬ!"
+                    text = """Вы потеряли работу из-за долгов.           
+Они накапливались, и  у вас\nне осталось денег платить
+за машину. Вы остались без \nсредств и не смогли \nпродолжить эту жизнь."""
+                elif self.end == 4:  # No fuel
+                    self.fuel.image.set_alpha(self.alpha - 255)
+                    self.fuel.draw(screen)
+                    position -= 110
+                    header = "ЗАКОНЧИЛОСЬ ТОПЛИВО!"
+                    text = """У вас закончилось топливо. 
+Ваш машина остановилась посреди 
+дороги и пассажиру 
+придётся идти пешком..."""
                 position1 = position + (255 * 2 - self.alpha) * 0.7
                 position2 = position + (255 * 2 - self.alpha)
                 text_render(screen, header, self.intro,

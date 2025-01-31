@@ -29,10 +29,11 @@ def zebra_collision(zebra, right, left):
     return [car for car in (right, left) if car is not None]
 
 
-def text_render(screen, text, font, color, cords, alpha=255):
+def text_render(screen, text, font, color,
+                cords, alpha=255, d=5):
     x, y = cords
     for line in text.split('\n'):
         text = font.render(line, True, color)
         text.set_alpha(alpha)
-        y += font.get_height() + 5
+        y += font.get_height() + d
         screen.blit(text, (x, y))

@@ -28,12 +28,14 @@ if __name__ == '__main__':
                         if event.key in (pygame.K_SPACE, pygame.K_RETURN):
                             city = StartScreen(screen)
                     else:
-                        if city.taxi.acceleration >= 0:
+                        if city.taxi.acceleration > 0:
                             if event.key == pygame.K_s:
                                 city.taxi.change_line(Taxi.FORWARD)
                             if event.key == pygame.K_w:
                                 city.taxi.change_line(Taxi.BACKWARD)
-                        if city.display.new_order:
+                        if city.fine.show and event.key == pygame.K_RETURN:
+                            city.pay_fine()
+                        elif city.display.new_order:
                             if event.key == pygame.K_RETURN:
                                 city.game_control.accept()
                             elif event.key in (pygame.K_BACKSPACE,
@@ -61,6 +63,8 @@ if __name__ == '__main__':
                     if city.ending.end:
                         city.music.stop()
                         city = StartScreen(screen)
+                    elif city.fine.show:
+                        city.pay_fine()
                     else:  # Buttons click
                         if 1240 < event.pos[0] < 1280 and \
                                 710 < event.pos[1] < 755:

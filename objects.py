@@ -147,6 +147,10 @@ class Car(GameObject):
             args[2] = position, args[2][1]
         return Car(*args, self.right, True)
 
+    def delete(self):
+        self.kill()
+        del self
+
     def update(self, position):
         if (self.stop or self.braked) and self.speed > 0:
             self.speed -= self.brake
@@ -162,8 +166,7 @@ class Car(GameObject):
         if ((speed <= 0 and self.rect.x > 2 * WIDTH or
                 speed >= 0 and self.rect.x < -WIDTH)
                 and self.rect.y != HEIGHT):
-            self.kill()
-            del self
+            self.delete()
 
 
 class CarController:
@@ -173,6 +176,7 @@ class CarController:
         self.right_models: [Car] = []
         self.left_models: [Car] = []
         self.stopped, self.red = [], False
+        self.object = None
 
     def stop(self, cars, zebra):
         for car in cars:
@@ -224,6 +228,8 @@ class Taxi(GameObject):
         return self.img if self.right else self.flip_img
 
     def turn(self):
+        if self.acceleration == 0:
+            return
         if 0 in (self.go_forward, self.go_backward):
             self.right = not self.right
             self.image = self.get_image()

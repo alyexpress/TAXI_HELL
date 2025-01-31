@@ -51,7 +51,7 @@ class City:
         self.right_cars = right = pygame.sprite.Group()
         self.left_cars = left = pygame.sprite.Group()
         self.car_control = CarController(right, left)
-        self.ending = Ending()
+        self.ending, self.fine = Ending(), Fine()
         # Init UI
         self.place, self.places = Place(self.check_camera), {}
         self.rating, self.counter = Rating(self), Counter(self)
@@ -119,9 +119,6 @@ class City:
                 self.db.clear()
             if abs(self.taxi.speed) < 0.1:
                 self.taxi.acceleration = 0
-        elif self.taxi.acceleration <= 0:
-            self.taxi.acceleration = 4
-
     def car_generation(self):
         count = len(self.left_cars) + len(self.right_cars)
         if abs(self.taxi.speed) > 1 and count < 2:
@@ -162,6 +159,8 @@ class City:
         for group in (self.right_cars, self.left_cars):
             if len(group) > 0:
                 car = group.sprites()[0]
+                if car.speed == 10:
+                    break
                 if ((car.right and self.taxi.go_forward in (2, 3, 4) or
                         not car.right and self.taxi.go_backward in (2, 3, 4))
                         and pygame.sprite.collide_mask(car, self.taxi)):
@@ -171,6 +170,12 @@ class City:
                         car.speed, self.ending.end = 0, 2
                         self.paused = True
                         self.db.clear()
+                    else:
+                        self.car_control.object = car
+                        if car in self.car_control.stopped:
+                            self.car_control.stopped.remove(car)
+                        self.taxi.acceleration = 0
+                        self.fine.show = True
 
     def check_camera(self):
         if abs(self.taxi.speed * 8.9) > 60:
@@ -182,6 +187,18 @@ class City:
                 self.db.clear()
             return True
         return False
+
+    def pay_fine(self):
+        self.car_control.object.stop = False
+        self.car_control.object.speed = 10
+        if self.db.money >= 100:
+            self.db.money -= 100
+            self.fine.show = False
+            self.taxi.acceleration = 4
+        else:
+            self.music.game_over(Music.CRYING)
+            self.ending.end = 3
+            self.db.clear()
 
     def render(self):
         if self.ending.alpha < 255:
@@ -214,6 +231,7 @@ class City:
             self.fuel.draw(self.screen)
             self.display.draw(self.screen)
             self.radio.draw(self.screen)
+            self.fine.draw(self.screen)
         # Ending render
         self.ending.render(self.screen)
 

@@ -1,6 +1,6 @@
 import pygame.surface
 
-from config import WIDTH, UI_DIR, FPS
+from config import WIDTH, HEIGHT, UI_DIR, FPS
 from options import *
 
 
@@ -101,7 +101,7 @@ class Counter:
 
 class Fuel:
     def __init__(self, city):
-        self.db, self.place = city.db, city.place
+        self.db, self.place, self.taxi = city.db, city.place, city.taxi
         self.sec = (10 - self.db.level) * 200 + 5000
         red = load_image("speedometer/fuel_line.png", UI_DIR)
         yellow = load_image("speedometer/fuel_line.png", UI_DIR)
@@ -126,6 +126,7 @@ class Fuel:
             self.sec = (10 - self.db.level) * 200 + 5000
         if self.fill_time == 0:
             if self.place.place == "Заправка":
+                self.taxi.acceleration = 4
                 self.db.fuel += 1
                 if self.db.fuel < 6:
                     self.fill_time = FPS
@@ -269,3 +270,34 @@ class Radio:
         else:
             screen.blit(self.pause, (1240, 709))
         screen.blit(self.next, (1305, 702))
+
+
+class Fine:
+    def __init__(self):
+        self.background = pygame.Surface((WIDTH, HEIGHT))
+        self.plate = load_scaled_image('fine/plate.png', (600, 400))
+        self.button = load_scaled_image('fine/button.png', (580, 92))
+        self.intro = pygame.font.Font(font_intro, 65)
+        self.small = pygame.font.Font(font_intro, 40)
+        self.header1 = self.intro.render("ОПЛАТИТЕ", True, "black")
+        self.header2 = self.intro.render("ПОВРЕЖДЕНИЯ", True, "black")
+        self.show, self.alpha = False, 0
+
+    def draw(self, screen):
+        if self.show and self.alpha < 255:
+            self.alpha += 3
+        elif not self.show and self.alpha > 0:
+            self.alpha -= 3
+        if self.alpha:
+            back_alpha = round(self.alpha * 0.6)
+            self.background.set_alpha(back_alpha)
+            y = (255 - self.alpha) * 3
+            screen.blit(self.background, (0, 0))
+            screen.blit(self.plate, (400, 150 - y))
+            screen.blit(self.header1, (430, 180 - y))
+            screen.blit(self.header2, (430, 240 - y))
+            text = """Вы врезались в машину,
+она сильно повреждена\nвозместите ущерб..."""
+            text_render(screen, text, self.small,
+                        "#333333", (430, 270 - y), d=0)
+            screen.blit(self.button, (410, 450 - y))

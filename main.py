@@ -14,8 +14,8 @@ if __name__ == '__main__':
     pygame.display.set_icon(load_image(ICON, UI_DIR))
     db = Database(DATABASE_NAME)
     clock = pygame.time.Clock()
-    city = FirstCity(screen, db)
-    # city = StartScreen(screen)
+    # city = FirstCity(screen, db)
+    city = StartScreen(screen)
     MUSIC_END = pygame.USEREVENT
     pygame.mixer.music.set_endevent(MUSIC_END)
     action, running = 0, True
